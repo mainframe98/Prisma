@@ -1,0 +1,54 @@
+<Window x:Class="PrismaGUI.Views.Update"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:commands="clr-namespace:PrismaGUI.Commands"
+        xmlns:local="clr-namespace:PrismaGUI.Views"
+        xmlns:localization="clr-namespace:PrismaGUI.Localization"
+        xmlns:viewModels="clr-namespace:PrismaGUI.ViewModels"
+        mc:Ignorable="d"
+        Title="{localization:Localize AnNewVersionIsAvailable}"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        Topmost="True"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="ToolWindow">
+    <Window.DataContext>
+        <viewModels:UpdateViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/Common.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="commands:Commands.DialogExit" CanExecute="CanAlwaysExecuteHandler" Executed="Exit_Executed"/>
+    </Window.CommandBindings>
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource HeaderBorder}">
+            <TextBlock Text="{Binding NewVersionText}" HorizontalAlignment="Center" FontSize="24"/>
+        </Border>
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="{localization:Localize NewVersionText}" TextWrapping="Wrap" Margin="5,10,5,10" MaxWidth="400"/>
+        <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Margin" Value="5,0,5,5"/>
+                </Style>
+            </StackPanel.Resources>
+            <Button Content="{localization:Localize UpdateNow}" Click="UpdateNow_Click"/>
+            <Button Content="{localization:Localize VisitWebsite}" Click="VisitWebsite_Click"/>
+            <Button Content="{localization:Localize Close}" Command="commands:Commands.DialogExit"/>
+        </StackPanel>
+    </Grid>
+</Window>

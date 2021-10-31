@@ -1,0 +1,358 @@
+﻿<Window x:Class="PrismaGUI.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:core="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:PrismaGUI"
+        xmlns:localization="clr-namespace:PrismaGUI.Localization"
+        xmlns:converters="clr-namespace:PrismaGUI.Converters"
+        xmlns:commands="clr-namespace:PrismaGUI.Commands"
+        xmlns:serilog="clr-namespace:Serilog.Events;assembly=Serilog"
+        xmlns:viewModels="clr-namespace:PrismaGUI.ViewModels"
+        xmlns:validationRules="clr-namespace:PrismaGUI.ValidationRules"
+        mc:Ignorable="d"
+        Title="{Binding Title}"
+        Width="900"
+        SizeToContent="Height"
+        ResizeMode="CanResizeWithGrip"
+        Closing="Window_Closing">
+    <Window.DataContext>
+        <viewModels:MainWindowViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <ResourceDictionary>
+            <converters:RegexStringConverter x:Key="RegexStringConverter"/>
+            <ObjectDataProvider x:Key="LogLevel" MethodName="GetValues" ObjectType="{x:Type core:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type Type="serilog:LogEventLevel"/>
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+            <ControlTemplate x:Key="ErrorAdorner">
+                <StackPanel>
+                    <AdornedElementPlaceholder x:Name="textBox"/>
+                    <ItemsControl ItemsSource="{Binding}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderThickness="1" BorderBrush="#FF0000" Margin="0,3,0,0" CornerRadius="2">
+                                    <TextBlock Text="{Binding ErrorContent}" Foreground="#FF0000" Background="White" Padding="5"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ControlTemplate>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/Common.xaml"/>
+                <ResourceDictionary Source="../Resources/Icons.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.CommandBindings>
+        <!-- Specifying a name is not strictly necessary, but makes reading XAML much easier. -->
+        <CommandBinding x:Name="About" Command="commands:Commands.OpenAbout" CanExecute="CanAlwaysExecuteHandler" Executed="About_Executed"/>
+        <CommandBinding x:Name="CheckForUpdates" Command="commands:Commands.CheckForUpdates" CanExecute="CanAlwaysExecuteHandler" Executed="CheckForUpdates_Executed"/>
+        <CommandBinding x:Name="ClearLogs" Command="commands:Commands.ClearLogs" CanExecute="ClearLogs_CanExecute" Executed="ClearLogs_Executed"/>
+        <CommandBinding x:Name="Exit" Command="commands:Commands.Exit" CanExecute="CanAlwaysExecuteHandler" Executed="Exit_Executed"/>
+        <CommandBinding x:Name="Help" Command="Help" CanExecute="CanAlwaysExecuteHandler" Executed="Help_Executed"/>
+        <CommandBinding x:Name="New" Command="New" CanExecute="CanOnlyExecuteIfServerNotActiveHandler" Executed="New_Executed"/>
+        <CommandBinding x:Name="Open" Command="Open" CanExecute="CanOnlyExecuteIfServerNotActiveHandler" Executed="Open_Executed"/>
+        <CommandBinding x:Name="Restart" Command="commands:Commands.Restart" CanExecute="CanOnlyExecuteIfServerActiveHandler" Executed="Restart_Executed"/>
+        <CommandBinding x:Name="SaveAs" Command="SaveAs" CanExecute="CanAlwaysExecuteHandler" Executed="SaveAs_Executed"/>
+        <CommandBinding x:Name="SelectDocumentRoot" Command="commands:Commands.SelectDocumentRoot" CanExecute="CanAlwaysExecuteHandler" Executed="SelectDocumentRoot_Executed"/>
+        <CommandBinding x:Name="SelectLogFile" Command="commands:Commands.SelectLogFile" CanExecute="CanAlwaysExecuteHandler" Executed="SelectLogFile_Executed"/>
+        <CommandBinding x:Name="ServerToggle" Command="commands:Commands.ServerToggle" CanExecute="CanAlwaysExecuteHandler" Executed="ServerToggle_Executed" />
+        <CommandBinding x:Name="Start" Command="commands:Commands.Start" CanExecute="CanOnlyExecuteIfServerNotActiveHandler" Executed="Start_Executed"/>
+        <CommandBinding x:Name="Stop" Command="commands:Commands.Stop" CanExecute="CanOnlyExecuteIfServerActiveHandler" Executed="Stop_Executed"/>
+    </Window.CommandBindings>
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="{localization:Localize File}">
+                    <MenuItem Header="{localization:Localize New}" Command="New" Icon="{StaticResource DocumentNew}"/>
+                    <MenuItem Header="{localization:Localize Open}" Command="Open" Icon="{StaticResource Folder}"/>
+                    <MenuItem Header="{localization:Localize Save As}" Command="SaveAs" Icon="{StaticResource FloppyDiskBlue}"/>
+                    <Separator/>
+                    <MenuItem Header="{localization:Localize Exit}" Command="commands:Commands.Exit" Icon="{StaticResource LogOut}"/>
+                </MenuItem>
+                <MenuItem Header="{localization:Localize Server}">
+                    <MenuItem Header="{localization:Localize Start}" Command="commands:Commands.Start" Icon="{StaticResource PlayGreen}"/>
+                    <MenuItem Header="{localization:Localize Stop}" Command="commands:Commands.Stop" Icon="{StaticResource StopRed}"/>
+                    <MenuItem Header="{localization:Localize Restart}" Command="commands:Commands.Restart" Icon="{StaticResource RestartGreen}"/>
+                    <Separator/>
+                    <MenuItem Header="{localization:Localize Clear logs}" Command="commands:Commands.ClearLogs" Icon="{StaticResource Kill}"/>
+                </MenuItem>
+                <MenuItem Header="{localization:Localize Help}">
+                    <MenuItem Header="{localization:Localize Help}" Command="Help" Icon="{StaticResource Question}"/>
+                    <MenuItem Header="{localization:Localize About}" Command="commands:Commands.OpenAbout" Icon="{StaticResource Info}"/>
+                    <Separator/>
+                    <MenuItem Header="{localization:Localize Check for Updates}" Command="commands:Commands.CheckForUpdates" Icon="{StaticResource InProgressGreen}"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem Margin="0,0,10,0" DockPanel.Dock="Right">
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="{localization:Localize Clear logs}" Command="commands:Commands.ClearLogs" Margin="0,0,10,0"/>
+                    <Button Content="{Binding ServeButtonText}" Command="commands:Commands.ServerToggle"/>
+                </StackPanel>
+            </StatusBarItem>
+            <StatusBarItem Margin="10,0,0,0" DockPanel.Dock="Right">
+                <TextBlock Text="{Binding ServerStatus}" TextTrimming="CharacterEllipsis"/>
+            </StatusBarItem>
+        </StatusBar>
+        <RichTextBox Name="LoggingBox" Margin="10,10,10,10" DockPanel.Dock="Bottom" IsReadOnly="True" Background="White" Foreground="Black" FontFamily="Consolas, Courier New, monospace" VerticalScrollBarVisibility="Visible" IsReadOnlyCaretVisible="True" MinHeight="162" MaxHeight="162"/>
+        <TabControl Margin="0,5,0,0" Grid.IsSharedSizeScope="True">
+            <TabItem Header="{localization:Localize General}">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition SharedSizeGroup="Tabs"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <GroupBox Header="{localization:Localize Server}" Margin="5,0,5,5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row="0" Grid.Column="0" Content="{localization:Localize Configuration file:}" VerticalAlignment="Center" Target="{Binding ElementName=ConfigFilePath}"/>
+                                <Grid Grid.Row="0" Grid.Column="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Buttons"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Name="ConfigFilePath" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Validation.ErrorTemplate="{StaticResource ErrorAdorner}">
+                                        <TextBox.Text>
+                                            <Binding Path="ConfigFilePath">
+                                                <Binding.ValidationRules>
+                                                    <validationRules:ConfigFileValidationRule ValidationStep="RawProposedValue"/>
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                    <Button Content="{localization:Localize Load configuration file}" Command="Open" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                </Grid>
+                                <Label Grid.Row="1" Grid.Column="0" Content="{localization:Localize Document root:}" Target="{Binding ElementName=DocumentRoot}"/>
+                                <Grid Grid.Row="1" Grid.Column="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Buttons"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Name="DocumentRoot" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Validation.ErrorTemplate="{StaticResource ErrorAdorner}">
+                                        <TextBox.Text>
+                                            <Binding Path="DocumentRoot">
+                                                <Binding.ValidationRules>
+                                                    <validationRules:DirectoryValidationRule ValidationStep="RawProposedValue"/>
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                    <Button Content="{localization:Localize Select document root}" Command="commands:Commands.SelectDocumentRoot" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                </Grid>
+                                <Label Grid.Row="2" Grid.Column="0" Content="{localization:Localize Port:}" Target="{Binding ElementName=Port}"/>
+                                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                                    <TextBox Name="Port" PreviewTextInput="Port_PreviewTextInput" DataObject.Pasting="Port_Pasting" MaxLength="5" MinWidth="39" VerticalAlignment="Center" Margin="0,0,5,0" MaxLines="1" TextAlignment="Right" Validation.ErrorTemplate="{StaticResource ErrorAdorner}">
+                                        <TextBox.Text>
+                                            <Binding Path="Port" UpdateSourceTrigger="PropertyChanged">
+                                               <Binding.ValidationRules>
+                                                   <validationRules:PortValidationRule ValidationStep="RawProposedValue"/>
+                                               </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                    <Label Content="Ports in the range of 1-1024 require administrator privileges."/>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="{localization:Localize CGI}" Margin="5,0,5,5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row="0" Grid.Column="0" Content="Enable cgi-bin/:" Target="{Binding ElementName=EnableCgiBin}"/>
+                                <CheckBox Name="EnableCgiBin" Grid.Row="0" Grid.Column="1" Margin="0,5,5,5" HorizontalAlignment="Left" IsChecked="{Binding EnableCgiBin, Mode=TwoWay}"/>
+                                <Label Grid.Row="1" Grid.Column="0" Content="Enable .cgi extension:" Target="{Binding ElementName=TreatCgiExtensionScriptsAsCgiScripts}"/>
+                                <CheckBox Name="TreatCgiExtensionScriptsAsCgiScripts" Grid.Row="1" Grid.Column="1" Margin="0,5,5,5" HorizontalAlignment="Left" IsChecked="{Binding TreatCgiExtensionScriptsAsCgiScripts, Mode=TwoWay}"/>
+                                <Label Grid.Row="2" Grid.Column="0" Content="{localization:Localize Allow PathInfo:}" Target="{Binding ElementName=AllowPathInfo}"/>
+                                <CheckBox Name="AllowPathInfo" Grid.Row="2" Grid.Column="1" Margin="0,5,5,5" HorizontalAlignment="Left" IsChecked="{Binding AllowPathInfo, Mode=TwoWay}"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="{localization:Localize Logging}" Margin="5,0,5,5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row="0" Grid.Column="0" Content="{localization:Localize Log file:}" Target="{Binding ElementName=LogFile}"/>
+                                <Grid Grid.Row="0" Grid.Column="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Buttons"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Name="LogFile" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Validation.ErrorTemplate="{StaticResource ErrorAdorner}">
+                                        <TextBox.Text>
+                                            <Binding Path="LogFile" Mode="TwoWay">
+                                                <Binding.ValidationRules>
+                                                    <validationRules:LogFileValidationRule ValidationStep="RawProposedValue"/>
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                    <Button Content="{localization:Localize Select log file}" Command="commands:Commands.SelectLogFile" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                </Grid>
+                                <Label Grid.Row="1" Grid.Column="0" Content="{localization:Localize Log as JSON:}" Target="{Binding ElementName=LogAsJson}"/>
+                                <CheckBox Name="LogAsJson" Grid.Row="1" Grid.Column="1" Margin="0,5,5,5" HorizontalAlignment="Left" IsChecked="{Binding LogAsJson, Mode=TwoWay}"/>
+                                <Label Grid.Row="2" Grid.Column="0" Content="{localization:Localize Log level:}" Target="{Binding ElementName=LogLevel}"/>
+                                <ComboBox Name="LogLevel" Grid.Row="2" Grid.Column="1" Margin="0,5,0,5" VerticalAlignment="Center" ItemsSource="{Binding Source={StaticResource LogLevel}}" SelectedValue="{Binding LogLevel, Mode=TwoWay}"/>
+                            </Grid>
+                        </GroupBox>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{localization:Localize FastCGI applications}">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition SharedSizeGroup="Tabs"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid ItemsSource="{Binding FastCgiApplications, Mode=TwoWay}" MinColumnWidth="75" CanUserResizeRows="False"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{localization:Localize CGI applications}">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition SharedSizeGroup="Tabs"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding CgiApplications, Mode=TwoWay}" MinColumnWidth="75" CanUserResizeRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{localization:Localize Name}" Binding="{Binding Name, Mode=TwoWay}"/>
+                            <DataGridTextColumn Header="{localization:Localize Path}" Binding="{Binding Path, Mode=TwoWay}"/>
+                            <DataGridTemplateColumn Header="{localization:Localize Arguments}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <DataGrid ItemsSource="{Binding Arguments, Mode=TwoWay}" CanUserResizeRows="False"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{localization:Localize Environment variables}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <DataGrid ItemsSource="{Binding EnvironmentVariables, Mode=TwoWay}" CanUserResizeRows="False"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{localization:Localize Rewrite rules}">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition SharedSizeGroup="Tabs"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding RewriteRules, Mode=TwoWay}" MinColumnWidth="75" CanUserResizeRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{localization:Localize Rule}" Binding="{Binding Rule, Mode=TwoWay, Converter={StaticResource RegexStringConverter}}"/>
+                            <DataGridTextColumn Header="{localization:Localize Rewrite to}" Binding="{Binding RewriteTo, Mode=TwoWay}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{localization:Localize Invoke on extension}">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition SharedSizeGroup="Tabs"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding InvokeOnExtension, Mode=TwoWay}" MinColumnWidth="75" CanUserResizeRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{localization:Localize Extension}" Binding="{Binding Extension, Mode=TwoWay}"/>
+                            <DataGridTemplateColumn Header="{localization:Localize Application}">
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox IsEditable="True" IsDropDownOpen="True" Text="{Binding Application, Mode=TwoWay}" ItemsSource="{Binding Path=DataContext.DefinedApplications, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Application}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{localization:Localize Invoke on path}">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition SharedSizeGroup="Tabs"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding InvokeOnPath, Mode=TwoWay}" MinColumnWidth="75" CanUserResizeRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{localization:Localize Path}" Binding="{Binding Path, Mode=TwoWay}"/>
+                            <DataGridTemplateColumn Header="{localization:Localize Application}">
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox IsEditable="True" IsDropDownOpen="True" Text="{Binding Application, Mode=TwoWay}" ItemsSource="{Binding Path=DataContext.DefinedApplications, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Application}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{localization:Localize Default documents}">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition SharedSizeGroup="Tabs"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding DefaultDocuments, Mode=TwoWay}" MinColumnWidth="75" CanUserResizeRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{localization:Localize Document name}" Binding="{Binding Value, Mode=TwoWay}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="{localization:Localize Listener prefixes}">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition SharedSizeGroup="Tabs"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding ListenerPrefixes, Mode=TwoWay}" MinColumnWidth="75" CanUserResizeRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{localization:Localize Prefix}">
+                              <DataGridTextColumn.Binding>
+                                  <Binding Path="Value" Mode="TwoWay">
+                                      <Binding.ValidationRules>
+                                          <validationRules:ListenerPrefixValidationRule ValidationStep="RawProposedValue"/>
+                                      </Binding.ValidationRules>
+                                  </Binding>
+                              </DataGridTextColumn.Binding>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

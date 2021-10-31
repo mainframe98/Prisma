@@ -1,0 +1,38 @@
+{
+	"CgiApplications": {
+		"php": {
+			"Path": "php-cgi",
+			"Arguments": [
+				"-d",
+				"cgi.force_redirect=false"
+			],
+			"EnvironmentVariables": {}
+		}
+	},
+	"FastCgiApplications": {
+		"php-fastcgi": {
+			"Socket": "127.0.0.1:8081"
+		}
+	},
+	"InvokeOnPath": {},
+	"InvokeOnExtension": {
+		"php": "php-fastcgi"
+	},
+	"EnableCgiBin": false,
+	"TreatCgiExtensionScriptsAsCgiScripts": false,
+	"AllowPathInfo": false,
+	"Port": 8080,
+	"DocumentRoot": "",
+	"RewriteRules": {},
+	"DefaultDocuments": [
+		"index.php",
+		"index.html",
+		"index.htm"
+	],
+	"ListenerPrefixes": [],
+	"Logging": {
+		"LogLevel": "debug",
+		"Path": "",
+		"LogAsJson": false
+	}
+}

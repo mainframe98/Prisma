@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prisma", "Prisma\Prisma.csproj", "{A3B5C2D7-F968-4EBF-A9B8-2C3008053078}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrismaGUI", "PrismaGUI\PrismaGUI.csproj", "{CADE55D9-A56C-43A6-92C2-E3B62A70C5B6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A3B5C2D7-F968-4EBF-A9B8-2C3008053078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3B5C2D7-F968-4EBF-A9B8-2C3008053078}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3B5C2D7-F968-4EBF-A9B8-2C3008053078}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3B5C2D7-F968-4EBF-A9B8-2C3008053078}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3B5C2D7-F968-4EBF-A9B8-2C3008053078}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{CADE55D9-A56C-43A6-92C2-E3B62A70C5B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CADE55D9-A56C-43A6-92C2-E3B62A70C5B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CADE55D9-A56C-43A6-92C2-E3B62A70C5B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CADE55D9-A56C-43A6-92C2-E3B62A70C5B6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

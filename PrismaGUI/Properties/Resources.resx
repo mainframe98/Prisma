@@ -1,0 +1,335 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<!--
+		Microsoft ResX Schema
+
+		Version 1.3
+
+		The primary goals of this format is to allow a simple XML format
+		that is mostly human readable. The generation and parsing of the
+		various data types are done through the TypeConverter classes
+		associated with the data types.
+
+		Example:
+
+		... ado.net/XML headers & schema ...
+		<resheader name="resmimetype">text/microsoft-resx</resheader>
+		<resheader name="version">1.3</resheader>
+		<resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+		<resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+		<data name="Name1">this is my long string</data>
+		<data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+		<data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+			[base64 mime encoded serialized .NET Framework object]
+		</data>
+		<data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+			[base64 mime encoded string representing a byte array form of the .NET Framework object]
+		</data>
+
+		There are any number of "resheader" rows that contain simple
+		name/value pairs.
+
+		Each data row contains a name, and value. The row also contains a
+		type or mimetype. Type corresponds to a .NET class that support
+		text/value conversion through the TypeConverter architecture.
+		Classes that don't support this are serialized and stored with the
+		mimetype set.
+
+		The mimetype is used for serialized objects, and tells the
+		ResXResourceReader how to depersist the object. This is currently not
+		extensible. For a given mimetype the value must be set accordingly:
+
+		Note - application/x-microsoft.net.object.binary.base64 is the format
+		that the ResXResourceWriter will generate, however the reader can
+		read any of the formats listed below.
+
+		mimetype: application/x-microsoft.net.object.binary.base64
+		value   : The object must be serialized with
+			: System.Serialization.Formatters.Binary.BinaryFormatter
+			: and then encoded with base64 encoding.
+
+		mimetype: application/x-microsoft.net.object.soap.base64
+		value   : The object must be serialized with
+			: System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+			: and then encoded with base64 encoding.
+
+		mimetype: application/x-microsoft.net.object.bytearray.base64
+		value   : The object must be serialized into a byte array
+			: using a System.ComponentModel.TypeConverter
+			: and then encoded with base64 encoding.
+	-->
+
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>1.3</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="ProvidePathToFile" xml:space="preserve">
+		<value>Provide the path to a file.</value>
+	</data>
+	<data name="ProvideValidDirectory" xml:space="preserve">
+		<value>Provide a valid directory.</value>
+	</data>
+	<data name="InvalidPrefix" xml:space="preserve">
+		<value>Prefixes must start with http:// or https:// and end with a slash.</value>
+	</data>
+	<data name="ProvideValidLogFile" xml:space="preserve">
+		<value>Provide a valid path to a file.</value>
+	</data>
+	<data name="InvalidPortNumber" xml:space="preserve">
+		<value>Port numbers must be in the range of 0 to 65535.</value>
+	</data>
+	<data name="PrismaWebServer" xml:space="preserve">
+		<value>Prisma web server</value>
+	</data>
+	<data name="InvalidConfigFileTitle" xml:space="preserve">
+		<value>Invalid config file!</value>
+	</data>
+	<data name="CannotAccessConfigFileTitle" xml:space="preserve">
+		<value>Unable to access the config file!</value>
+	</data>
+	<data name="CannotAccessConfigFile" xml:space="preserve">
+		<value>This provided configuration file is not accessible.</value>
+	</data>
+	<data name="LogFile" xml:space="preserve">
+		<value>Log file</value>
+	</data>
+	<data name="PrismaConfigurationFiles" xml:space="preserve">
+		<value>Prisma configuration files</value>
+	</data>
+	<data name="FailedToStartServer" xml:space="preserve">
+		<value>Failed to start the server</value>
+	</data>
+	<data name="NoConfigurationLoaded" xml:space="preserve">
+		<value>no configuration loaded</value>
+	</data>
+	<data name="MainWindowTitle" xml:space="preserve">
+		<value>Prisma web server ({0})</value>
+	</data>
+	<data name="NotServing" xml:space="preserve">
+		<value>Not serving</value>
+	</data>
+	<data name="ServingAt" xml:space="preserve">
+		<value>Serving at {0}</value>
+	</data>
+	<data name="StopServing" xml:space="preserve">
+		<value>Stop serving</value>
+	</data>
+	<data name="StartServing" xml:space="preserve">
+		<value>Start serving</value>
+	</data>
+	<data name="InternalErrorTitle" xml:space="preserve">
+		<value>Internal error</value>
+	</data>
+	<data name="InternalErrorOccurred" xml:space="preserve">
+		<value>An internal error occurred</value>
+	</data>
+	<data name="PortOrPrefixAlreadyInUse" xml:space="preserve">
+		<value>A port and/or prefix is already in use by another process</value>
+	</data>
+	<data name="AdminPrivilegesRequiredForPrefix" xml:space="preserve">
+		<value>Using a URI prefix other than localhost or 127.0.0.1, or a port below 1024 requires administrative privileges.</value>
+	</data>
+	<data name="Close" xml:space="preserve">
+		<value>Close</value>
+	</data>
+	<data name="Name" xml:space="preserve">
+		<value>Name</value>
+	</data>
+	<data name="Version" xml:space="preserve">
+		<value>Version</value>
+	</data>
+	<data name="License" xml:space="preserve">
+		<value>License</value>
+	</data>
+	<data name="External Projects" xml:space="preserve">
+		<value>External Projects</value>
+	</data>
+	<data name="New" xml:space="preserve">
+		<value>New</value>
+	</data>
+	<data name="Open" xml:space="preserve">
+		<value>Open</value>
+	</data>
+	<data name="Save As" xml:space="preserve">
+		<value>Save as</value>
+	</data>
+	<data name="Exit" xml:space="preserve">
+		<value>Exit</value>
+	</data>
+	<data name="Restart" xml:space="preserve">
+		<value>Restart</value>
+	</data>
+	<data name="Start" xml:space="preserve">
+		<value>Start</value>
+	</data>
+	<data name="Stop" xml:space="preserve">
+		<value>Stop</value>
+	</data>
+	<data name="Clear logs" xml:space="preserve">
+		<value>Clear logs</value>
+	</data>
+	<data name="Help" xml:space="preserve">
+		<value>Help</value>
+	</data>
+	<data name="About" xml:space="preserve">
+		<value>About</value>
+	</data>
+	<data name="Check for Updates" xml:space="preserve">
+		<value>Check for Updates</value>
+	</data>
+	<data name="General" xml:space="preserve">
+		<value>General</value>
+	</data>
+	<data name="Server" xml:space="preserve">
+		<value>Server</value>
+	</data>
+	<data name="Configuration file:" xml:space="preserve">
+		<value>Configuration file:</value>
+	</data>
+	<data name="Load configuration file" xml:space="preserve">
+		<value>Load configuration file</value>
+	</data>
+	<data name="Document root:" xml:space="preserve">
+		<value>Document root:</value>
+	</data>
+	<data name="Select document root" xml:space="preserve">
+		<value>Select document root</value>
+	</data>
+	<data name="Port:" xml:space="preserve">
+		<value>Port:</value>
+	</data>
+	<data name="CGI" xml:space="preserve">
+		<value>CGI</value>
+	</data>
+	<data name="Allow PathInfo:" xml:space="preserve">
+		<value>Allow PathInfo:</value>
+	</data>
+	<data name="Logging" xml:space="preserve">
+		<value>Logging</value>
+	</data>
+	<data name="Log file:" xml:space="preserve">
+		<value>Log file:</value>
+	</data>
+	<data name="Select log file" xml:space="preserve">
+		<value>Select log file</value>
+	</data>
+	<data name="Log as JSON:" xml:space="preserve">
+		<value>Log as JSON:</value>
+	</data>
+	<data name="Log level:" xml:space="preserve">
+		<value>Log level:</value>
+	</data>
+	<data name="FastCGI applications" xml:space="preserve">
+		<value>FastCGI applications</value>
+	</data>
+	<data name="CGI applications" xml:space="preserve">
+		<value>CGI applications</value>
+	</data>
+	<data name="Path" xml:space="preserve">
+		<value>Path</value>
+	</data>
+	<data name="Arguments" xml:space="preserve">
+		<value>Arguments</value>
+	</data>
+	<data name="Environment variables" xml:space="preserve">
+		<value>Environment variables</value>
+	</data>
+	<data name="Rewrite rules" xml:space="preserve">
+		<value>Rewrite rules</value>
+	</data>
+	<data name="Rule" xml:space="preserve">
+		<value>Rule</value>
+	</data>
+	<data name="Rewrite to" xml:space="preserve">
+		<value>Rewrite to</value>
+	</data>
+	<data name="Invoke on extension" xml:space="preserve">
+		<value>Invoke on extension</value>
+	</data>
+	<data name="Extension" xml:space="preserve">
+		<value>Extension</value>
+	</data>
+	<data name="Application" xml:space="preserve">
+		<value>Application</value>
+	</data>
+	<data name="Invoke on path" xml:space="preserve">
+		<value>Invoke on path</value>
+	</data>
+	<data name="Default documents" xml:space="preserve">
+		<value>Default documents</value>
+	</data>
+	<data name="Document name" xml:space="preserve">
+		<value>Document name</value>
+	</data>
+	<data name="Listener prefixes" xml:space="preserve">
+		<value>Listener prefixes</value>
+	</data>
+	<data name="Prefix" xml:space="preserve">
+		<value>Prefix</value>
+	</data>
+	<data name="File" xml:space="preserve">
+		<value>File</value>
+	</data>
+	<data name="UpdateNow" xml:space="preserve">
+		<value>Update now</value>
+	</data>
+	<data name="VisitWebsite" xml:space="preserve">
+		<value>View the new version online</value>
+	</data>
+	<data name="NewVersionText" xml:space="preserve">
+		<value>A new version is available. Use the buttons below to download and install the new version, or view it online.</value>
+	</data>
+	<data name="NewVersionHeader" xml:space="preserve">
+		<value>Prisma version {0} is available!</value>
+	</data>
+	<data name="YouHaveTheLatestVersion" xml:space="preserve">
+		<value>You have the latest version.</value>
+	</data>
+	<data name="NoUpdatesAvailable" xml:space="preserve">
+		<value>No updates available</value>
+	</data>
+	<data name="AnNewVersionIsAvailable" xml:space="preserve">
+		<value>A new version is available</value>
+	</data>
+	<data name="CannotRunInstaller" xml:space="preserve">
+		<value>Cannot execute installer</value>
+	</data>
+	<data name="DownloadNewVersionManually" xml:space="preserve">
+		<value>You can download the new version manually instead.</value>
+	</data>
+</root>

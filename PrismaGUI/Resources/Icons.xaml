@@ -1,0 +1,16 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/">
+    <Image x:Key="DocumentNew" Source="{svgc:SvgImage /Resources/icons/document-new.svg}"/>
+    <Image x:Key="FloppyDiskBlue" Source="{svgc:SvgImage /Resources/icons/floppy-disc-blue.svg}"/>
+    <Image x:Key="Folder" Source="{svgc:SvgImage /Resources/icons/folder.svg}"/>
+    <Image x:Key="Info" Source="{svgc:SvgImage /Resources/icons/info.svg}"/>
+    <Image x:Key="Kill" Source="{svgc:SvgImage /Resources/icons/kill.svg}"/>
+    <Image x:Key="LogOut" Source="{svgc:SvgImage /Resources/icons/log-out.svg}"/>
+    <Image x:Key="PlayGreen" Source="{svgc:SvgImage /Resources/icons/play-green.svg}"/>
+    <Image x:Key="RestartGreen" Source="{svgc:SvgImage /Resources/icons/restart-green.svg}"/>
+    <Image x:Key="StopRed" Source="{svgc:SvgImage /Resources/icons/stop-red.svg}"/>
+    <Image x:Key="ServerWeb" Source="{svgc:SvgImage /Resources/icons/server-web.svg}"/>
+    <Image x:Key="InProgressGreen" Source="{svgc:SvgImage /Resources/icons/in-progress-green.svg}"/>
+    <Image x:Key="Question" Source="{svgc:SvgImage /Resources/icons/question.svg}"/>
+</ResourceDictionary>

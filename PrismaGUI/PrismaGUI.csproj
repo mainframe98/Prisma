@@ -1,0 +1,96 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <PublishSingleFile>true</PublishSingleFile>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <UseWPF>true</UseWPF>
+        <Nullable>enable</Nullable>
+		<Authors>Mainframe98</Authors>
+		<LangVersion>9</LangVersion>
+        <ApplicationIcon>Resources\icons\icon.ico</ApplicationIcon>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Prisma\Prisma.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Ookii.Dialogs.Wpf" Version="4.0.0" />
+      <PackageReference Include="Serilog.Sinks.RichTextBox.Wpf" Version="0.1.0-preview1" />
+      <PackageReference Include="SharpVectors" Version="1.7.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\LICENSE.md">
+          <Pack>True</Pack>
+          <PackagePath></PackagePath>
+        </None>
+        <Resource Include="Resources\icons\folder.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+        <Resource Include="Resources\icons\info.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+        <Resource Include="Resources\icons\kill.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+        <Resource Include="Resources\icons\log-out.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+        <Resource Include="Resources\icons\play-green.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+        <Resource Include="Resources\icons\restart-green.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+        <Resource Include="Resources\icons\server-web.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+        <Resource Include="Resources\icons\question.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+        <Resource Include="Resources\icons\document-new.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+        <Resource Include="Resources\icons\floppy-disc-blue.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+        <Resource Include="Resources\icons\stop-red.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+        <Resource Include="Resources\icons\in-progress-green.svg">
+            <Localizable>False</Localizable>
+        </Resource>
+      <None Remove="Resources\icons\folder.svg" />
+      <None Remove="Resources\icons\info.svg" />
+      <None Remove="Resources\icons\kill.svg" />
+      <None Remove="Resources\icons\log-out.svg" />
+      <None Remove="Resources\icons\play-green.svg" />
+      <None Remove="Resources\icons\restart-green.svg" />
+      <None Remove="Resources\icons\server-web.svg" />
+      <None Remove="Resources\icons\question.svg" />
+      <None Remove="Resources\icons\document-new.svg" />
+      <None Remove="Resources\icons\floppy-disc-blue.svg" />
+      <None Remove="Resources\icons\stop-red.svg" />
+      <None Remove="Resources\icons\in-progress-green.svg" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Properties\Resources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Resources.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Properties\Resources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+
+</Project>
