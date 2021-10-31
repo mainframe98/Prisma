@@ -22,7 +22,7 @@ AppUpdatesURL={#PrismaURL}
 DefaultDirName={autopf}\{#PrismaAppName}
 UninstallDisplayIcon={app}\{#PrismaAppName}
 DisableProgramGroupPage=yes
-LicenseFile=LICENSE.md
+LicenseFile=..\LICENSE.md
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputBaseFilename=PrismaSetup
