@@ -90,20 +90,8 @@ namespace Prisma.Config
         /// </summary>
         public void Normalize()
         {
-            if (this.DocumentRoot == "")
-            {
-                this.DocumentRoot = Directory.GetCurrentDirectory();
-            }
-            else if (!Path.IsPathRooted(this.DocumentRoot))
-            {
-                // Turn relative paths into a path relative to the working directory.
-                this.DocumentRoot = Path.Combine(Directory.GetCurrentDirectory(), this.DocumentRoot);
-            }
-
-            if (this.Logging.Path != "" && !Path.IsPathRooted(this.Logging.Path))
-            {
-                this.Logging.Path = Path.Combine(Directory.GetCurrentDirectory(), this.Logging.Path);
-            }
+            // Turn relative paths into a path relative to the working directory.
+            this.MakeRelativePathsAbsolute(Directory.GetCurrentDirectory());
 
             if (this.Port == 0)
             {
@@ -181,7 +169,7 @@ namespace Prisma.Config
                 throw new FileNotFoundException("The config file does not exist", path);
             }
 
-            return JsonSerializer.Deserialize<ServerConfig>(
+            ServerConfig config = JsonSerializer.Deserialize<ServerConfig>(
                 File.ReadAllText(path),
                 new JsonSerializerOptions
                 {
@@ -194,6 +182,33 @@ namespace Prisma.Config
                     }
                 }
             );
+
+            // If the config file contains relative paths, then that means relative to where the config file is,
+            // not the working directory.
+            config.MakeRelativePathsAbsolute(Path.GetDirectoryName(path) ?? path);
+
+            return config;
+        }
+
+        /// <summary>
+        /// Turns relative paths into absolute paths.
+        /// </summary>
+        /// <param name="rootDirectory">Directory to which the paths are relative.</param>
+        private void MakeRelativePathsAbsolute(string rootDirectory)
+        {
+            if (this.DocumentRoot == "")
+            {
+                this.DocumentRoot = rootDirectory;
+            }
+            else if (!Path.IsPathRooted(this.DocumentRoot))
+            {
+                this.DocumentRoot = Path.Combine(rootDirectory, this.DocumentRoot);
+            }
+
+            if (this.Logging.Path != "" && !Path.IsPathRooted(this.Logging.Path))
+            {
+                this.Logging.Path = Path.Combine(Directory.GetCurrentDirectory(), this.Logging.Path);
+            }
         }
 
         public object Clone()

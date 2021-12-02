@@ -13,6 +13,7 @@
 		<LangVersion>9</LangVersion>
         <ApplicationIcon>..\PrismaGUI\Resources\icons\icon.ico</ApplicationIcon>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <AssemblyVersion>1.1.0.0</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>
