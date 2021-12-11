@@ -31,7 +31,7 @@
 	],
 	"ListenerPrefixes": [],
 	"Logging": {
-		"LogLevel": "debug",
+		"Level": "verbose",
 		"Path": "",
 		"LogAsJson": false
 	}
