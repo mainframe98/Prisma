@@ -7,9 +7,11 @@ Invoke with `prisma`. This will run Prisma for the current directory at port 808
 
 Note that when specifying config options on the command line, they need to follow `--config`, or the config file will overwrite the provided values.
 
+`CTRL-C` will stop Prisma.
+
 ### Options
 ```
-Prisma web server 1.0.0.0
+Prisma web server 1.1.0.0
 © 2021 Mainframe98
 
 Usage: prisma
