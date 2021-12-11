@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Runtime.InteropServices;
 using Prisma.Config;
 using Serilog;
 
@@ -10,9 +8,9 @@ namespace Prisma.DocumentHandlers
 {
     public class CgiHandler : DocumentHandler
     {
-        private readonly CgiApplicationConfig _applicationConfig;
+        private readonly ApplicationConfig _applicationConfig;
 
-        public CgiHandler(ServerConfig config, ILogger logger, CgiApplicationConfig applicationConfig) : base(config, logger)
+        public CgiHandler(ServerConfig config, ILogger logger, ApplicationConfig applicationConfig) : base(config, logger)
         {
             this._applicationConfig = applicationConfig;
             this.LoggableName = $"CGI: {applicationConfig.Path}";
@@ -23,43 +21,9 @@ namespace Prisma.DocumentHandlers
         {
             using Process process = new()
             {
-                StartInfo =
-                {
-                    UseShellExecute = false,
-                    FileName = this._applicationConfig.Path,
-                    CreateNoWindow = true,
-                    RedirectStandardInput = true,
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true
-                }
+                StartInfo = this.CreateProcessStartInfo(this._applicationConfig)
             };
-            foreach (string arg in this._applicationConfig.Arguments)
-            {
-                process.StartInfo.ArgumentList.Add(arg);
-            }
 
-            // Don't let Windows add pointless environment variables.
-            // TODO: Is this only needed for Windows?
-            //   Linux shell environment variable inheritance is expected and shouldn't be discouraged.
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                Dictionary<string, string> variablesToKeep = new()
-                {
-                    ["PATH"] = process.StartInfo.Environment["PATH"],
-                    ["TMP"] = process.StartInfo.Environment["TMP"],
-                    ["TEMP"] = process.StartInfo.Environment["TEMP"]
-                };
-                process.StartInfo.Environment.Clear();
-
-                foreach (KeyValuePair<string,string> variable in variablesToKeep)
-                {
-                    process.StartInfo.Environment.Add(variable);
-                }
-            }
-            foreach ((string variable, string value) in this._applicationConfig.EnvironmentVariables)
-            {
-                process.StartInfo.Environment.Add(variable, value);
-            }
             foreach ((string variable, string value) in this.BuildRequestVariables(request, "CGI/1.1"))
             {
                 process.StartInfo.Environment.Add(variable, value);
@@ -74,7 +38,7 @@ namespace Prisma.DocumentHandlers
 
             process.StandardInput.Close();
 
-            process.ErrorDataReceived += (sender, args) =>
+            process.ErrorDataReceived += (_, args) =>
             {
                 if (args.Data != null)
                 {

@@ -691,6 +691,15 @@ namespace PrismaGUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Socket.
+        /// </summary>
+        internal static string Socket {
+            get {
+                return ResourceManager.GetString("Socket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Start.
         /// </summary>
         internal static string Start {

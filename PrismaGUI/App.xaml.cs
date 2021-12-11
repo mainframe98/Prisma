@@ -29,6 +29,8 @@ namespace PrismaGUI
             {
                 MessageBox.Show(this.MainWindow, messageBoxText, title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
+            (this.MainWindow as IDisposable)?.Dispose();
         }
     }
 }

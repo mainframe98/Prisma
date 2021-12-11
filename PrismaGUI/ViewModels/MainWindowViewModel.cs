@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -10,6 +11,7 @@ using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
 using Ookii.Dialogs.Wpf;
+using Prisma;
 using Prisma.Config;
 using Prisma.Exceptions;
 using PrismaGUI.Properties;
@@ -20,14 +22,14 @@ using Serilog.Events;
 
 namespace PrismaGUI.ViewModels
 {
-    public class MainWindowViewModel : ClassWithPropertiesThatNotify
+    public class MainWindowViewModel : ClassWithPropertiesThatNotify, IDisposable
     {
         #region Command handlers
 
         internal void OnWindowClosing() => this.StopServer();
 
-        internal void CanOnlyExecuteIfServerActiveHandler(CanExecuteRoutedEventArgs e) => e.CanExecute = this._server.IsServing;
-        internal void CanOnlyExecuteIfServerNotActiveHandler(CanExecuteRoutedEventArgs e) => e.CanExecute = !this._server.IsServing;
+        internal void CanOnlyExecuteIfServerActiveHandler(CanExecuteRoutedEventArgs e) => e.CanExecute = this._server != null;
+        internal void CanOnlyExecuteIfServerNotActiveHandler(CanExecuteRoutedEventArgs e) => e.CanExecute = this._server == null;
 
         internal void OnExecuteStart() => this.StartServer();
 
@@ -35,13 +37,13 @@ namespace PrismaGUI.ViewModels
 
         internal void OnServerToggleExecuted()
         {
-            if (this._server.IsServing)
+            if (this._server == null)
             {
-                this.StopServer();
+                this.StartServer();
             }
             else
             {
-                this.StartServer();
+                this.StopServer();
             }
         }
 
@@ -213,7 +215,30 @@ namespace PrismaGUI.ViewModels
 
             try
             {
-                this._server.Serve(configuration, logConfig.CreateLogger());
+                this._server = new Server(configuration, logConfig.CreateLogger());
+                this._server.Start();
+            }
+            catch (HttpListenerException e)
+            {
+                string message;
+                switch (e.ErrorCode)
+                {
+                    case 5:
+                        message = Resources.AdminPrivilegesRequiredForPrefix;
+                        break;
+                    case 32:
+                        message = Resources.PortOrPrefixAlreadyInUse;
+                        break;
+                    default:
+                        throw;
+                }
+
+                this.ShowMessageBox(
+                    Resources.FailedToStartServer,
+                    message,
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
             }
             catch (SetupException e)
             {
@@ -230,7 +255,8 @@ namespace PrismaGUI.ViewModels
 
         private void StopServer()
         {
-            this._server.Stop();
+            this._server?.Dispose();
+            this._server = null;
             this.TriggerServerStateChangeDependencyPropertiesEvent();
         }
 
@@ -337,14 +363,13 @@ namespace PrismaGUI.ViewModels
         {
             this._configFilePath = "";
             this._configuration = this.MakeNewConfig();
-            this._server = new Server();
         }
 
         #endregion
 
         #region Model
 
-        private readonly Server _server;
+        private Server? _server;
         private ServerConfig _configuration;
         private string _configFilePath;
 
@@ -456,7 +481,7 @@ namespace PrismaGUI.ViewModels
             get => new(this._configuration.CgiApplications.Select(a => new CgiApplication(a.Key, a.Value)));
             set
             {
-                this._configuration.CgiApplications = value.ToDictionary(a => a.Name, a => (CgiApplicationConfig)a);
+                this._configuration.CgiApplications = value.ToDictionary(a => a.Name, a => (ApplicationConfig)a);
                 this.NotifyPropertyChanged();
                 this.NotifyPropertyChanged(nameof(DefinedApplications));
             }
@@ -521,9 +546,9 @@ namespace PrismaGUI.ViewModels
 
         public string Title => string.Format(Resources.MainWindowTitle, this.ConfigFilePath == "" ? Resources.NoConfigurationLoaded : Path.GetFileName(this.ConfigFilePath));
 
-        public string ServerStatus => !this._server.IsServing ? Resources.NotServing : string.Format(Resources.ServingAt, string.Join(", ", this._configuration.ListenerPrefixes));
+        public string ServerStatus => this._server == null ? Resources.NotServing : string.Format(Resources.ServingAt, string.Join(", ", this._configuration.ListenerPrefixes));
 
-        public string ServeButtonText => this._server.IsServing ? Resources.StopServing : Resources.StartServing;
+        public string ServeButtonText => this._server == null ? Resources.StartServing : Resources.StopServing;
 
         public IEnumerable<string> DefinedApplications => this.FastCgiApplications.Select(a => a.Name)
             .Concat(this.CgiApplications.Select(a => a.Name))
@@ -535,5 +560,11 @@ namespace PrismaGUI.ViewModels
             .Where(a => !string.IsNullOrWhiteSpace(a));
 
         #endregion
+
+        /// <inheritdoc cref="IDisposable.Dispose"/>
+        public void Dispose()
+        {
+            this._server?.Dispose();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -11,7 +12,7 @@ namespace PrismaGUI.Views
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow
+    public partial class MainWindow : IDisposable
     {
         // This is an inverted version of the default Literate theme used by Serilog.Sinks.RichTextBox.Wpf.
         private readonly RichTextBoxTheme _theme = new RichTextBoxConsoleTheme(new Dictionary<RichTextBoxThemeStyle, RichTextBoxConsoleThemeStyle>
@@ -46,6 +47,7 @@ namespace PrismaGUI.Views
             this._updater = new Updater();
             // Clear logs at startup because the document of the RichTextBox is not empty upon creation.
             this.LoggingBox.Document.Blocks.Clear();
+            this.Dispatcher.ShutdownStarted += (_, _) => this.Dispose();
         }
 
         #region Code Behind logic for WPF shortcomings
@@ -128,5 +130,11 @@ namespace PrismaGUI.Views
         private void New_Executed(object sender, ExecutedRoutedEventArgs e) => this.ViewModel.OnNewExecuted();
 
         #endregion
+
+        public void Dispose()
+        {
+            this._updater.Dispose();
+            this.ViewModel.Dispose();
+        }
     }
 }

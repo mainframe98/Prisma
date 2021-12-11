@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,10 +15,11 @@ using Serilog;
 
 namespace Prisma.DocumentHandlers
 {
-    public class FastCgiHandler : DocumentHandler
+    public class FastCgiHandler : DocumentHandler, IDisposable
     {
         private const byte ZeroByte = 0x00;
         private readonly EndPoint _endPoint;
+        private readonly Process? _fastCgiApplicationProcess;
         private int _requestIdCounter;
 
         public FastCgiHandler(ServerConfig config, ILogger logger, FastCgiApplicationConfig applicationConfig) : base(config, logger)
@@ -39,6 +41,38 @@ namespace Prisma.DocumentHandlers
                 throw new InvalidConfigException($"Socket {applicationConfig.Socket} is not a valid socket.");
             }
 
+            if (applicationConfig.LaunchConfiguration.Path != "")
+            {
+                this._fastCgiApplicationProcess = new()
+                {
+                    StartInfo = this.CreateProcessStartInfo(applicationConfig.LaunchConfiguration)
+                };
+            }
+        }
+
+        public override void Initialize()
+        {
+            if (this._fastCgiApplicationProcess != null)
+            {
+                this._fastCgiApplicationProcess.Start();
+                this.Logger.Debug("Launched FastCGI application for {Application}", this.LoggableName);
+
+                this._fastCgiApplicationProcess.ErrorDataReceived += (_, args) =>
+                {
+                    if (args.Data != null)
+                    {
+                        this.Logger.Error("FastCGI application error: {ErrorLine}", args.Data);
+                    }
+                };
+                this._fastCgiApplicationProcess.BeginErrorReadLine();
+
+                // This check seems to required to make applications actually be ready to connect to.
+                if (!this._fastCgiApplicationProcess.Responding)
+                {
+                    throw new SetupException($"The FastCGI application \"{this.LoggableName}\" is not responding");
+                }
+            }
+
             Socket? socket = null;
             try
             {
@@ -48,7 +82,7 @@ namespace Prisma.DocumentHandlers
             }
             catch (SocketException e) when (e.SocketErrorCode == SocketError.ConnectionRefused)
             {
-                throw new SetupException($"The application on socket {this._endPoint} is not available", e);
+                throw new SetupException($"The FastCGI application \"{this.LoggableName}\" on socket {this._endPoint} is not available", e);
             }
             finally
             {
@@ -99,7 +133,7 @@ namespace Prisma.DocumentHandlers
         {
             Interlocked.Increment(ref this._requestIdCounter);
             // Prevent negative request ids.
-            Interlocked.CompareExchange(ref this._requestIdCounter,1, int.MinValue);
+            Interlocked.CompareExchange(ref this._requestIdCounter, 1, int.MinValue);
 
             int requestId = this._requestIdCounter;
 
@@ -252,6 +286,28 @@ namespace Prisma.DocumentHandlers
 
             stream.Position = 0;
             return stream;
+        }
+
+        /// <inheritdoc cref="IDisposable.Dispose"/>
+        public void Dispose()
+        {
+            if (this._fastCgiApplicationProcess != null)
+            {
+                bool hasExited = this._fastCgiApplicationProcess.HasExited;
+                if (!hasExited && this._fastCgiApplicationProcess.CloseMainWindow())
+                {
+                    this.Logger.Verbose("Signalling {Application} that it should close. Waiting for 1500ms", this.LoggableName);
+                    hasExited = this._fastCgiApplicationProcess.WaitForExit(1500);
+                }
+
+                if (!hasExited)
+                {
+                    this.Logger.Information("{Application} doesn't support politely asking to close or loitered. Killing it now", this.LoggableName);
+                    this._fastCgiApplicationProcess.Kill();
+                }
+
+                this._fastCgiApplicationProcess.Dispose();
+            }
         }
     }
 }

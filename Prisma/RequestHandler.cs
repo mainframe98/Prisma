@@ -11,7 +11,7 @@ using Serilog;
 
 namespace Prisma
 {
-    public class RequestHandler
+    public class RequestHandler : IDisposable
     {
         private readonly ILogger _logger;
         private readonly ServerConfig _config;
@@ -24,12 +24,18 @@ namespace Prisma
             this._standardDocumentHandler = new StandardDocumentHandler(this._config, logger);
             this._handlers = new Dictionary<string, DocumentHandler>();
             this._logger = logger;
+        }
 
-            List<string> usedHandlers = config.InvokeOnExtension.Values.Concat(config.InvokeOnPath.Values).ToList();
+        /// <summary>
+        /// Do initialization work that shouldn't happen inside the constructor.
+        /// </summary>
+        public void InitializeHandlers()
+        {
+            List<string> usedHandlers = this._config.InvokeOnExtension.Values.Concat(this._config.InvokeOnPath.Values).ToList();
 
-            foreach ((string application, CgiApplicationConfig cgiConfig) in this._config.CgiApplications)
+            foreach ((string application, ApplicationConfig cgiConfig) in this._config.CgiApplications)
             {
-                this._handlers[application] = new CgiHandler(config, logger.ForContext("Application", application), cgiConfig)
+                this._handlers[application] = new CgiHandler(this._config, this._logger.ForContext("Application", application), cgiConfig)
                 {
                     LoggableName = application
                 };
@@ -37,10 +43,15 @@ namespace Prisma
 
             foreach ((string application, FastCgiApplicationConfig fastCgiConfig) in this._config.FastCgiApplications.Where(p => usedHandlers.Contains(p.Key)))
             {
-                this._handlers[application] = new FastCgiHandler(config, logger.ForContext("Application", application), fastCgiConfig)
+                this._handlers[application] = new FastCgiHandler(this._config, this._logger.ForContext("Application", application), fastCgiConfig)
                 {
                     LoggableName = application
                 };
+            }
+
+            foreach ((string _, DocumentHandler handler) in this._handlers)
+            {
+                handler.Initialize();
             }
         }
 
@@ -136,7 +147,7 @@ namespace Prisma
                     return this._standardDocumentHandler;
                 }
 
-                return new CgiHandler(this._config, this._logger.ForContext("CGI script", path), new CgiApplicationConfig
+                return new CgiHandler(this._config, this._logger.ForContext("CGI script", path), new ApplicationConfig
                 {
                     Path = path
                 });
@@ -189,7 +200,7 @@ namespace Prisma
         {
             if (this._config.TreatCgiExtensionScriptsAsCgiScripts && request.RequestExtension == "cgi")
             {
-                return new CgiHandler(this._config, this._logger.ForContext("CGI script", localPath), new CgiApplicationConfig
+                return new CgiHandler(this._config, this._logger.ForContext("CGI script", localPath), new ApplicationConfig
                 {
                     Path = localPath
                 });
@@ -304,6 +315,18 @@ namespace Prisma
         public void Handle(HttpListener listener)
         {
             listener.BeginGetContext(this.Handle, listener);
+        }
+
+        /// <inheritdoc cref="IDisposable.Dispose"/>
+        public void Dispose()
+        {
+            foreach ((string _, DocumentHandler handler) in this._handlers)
+            {
+                if (handler is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            }
         }
     }
 }

@@ -107,26 +107,21 @@ namespace Prisma
                 exitEvent.Set();
             };
 
-            RequestHandler handler;
+            using Server server = new(this._config, this._logger);
+
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                WindowsConsoleHandler.RegisterShutdownHandler(() => server.Dispose());
+            }
+
             try
             {
-                handler = new RequestHandler(this._config, this._logger);
+                server.Start();
             }
             catch (SetupException e)
             {
                 this._logger.Fatal(e, "Handler setup failed: {ExceptionMessage}", e.Message);
                 return;
-            }
-
-            using HttpListener listener = new();
-            foreach (string prefix in this._config.ListenerPrefixes)
-            {
-                listener.Prefixes.Add(prefix);
-            }
-
-            try
-            {
-                listener.Start();
             }
             catch (HttpListenerException e)
             {
@@ -134,25 +129,16 @@ namespace Prisma
                 {
                     case 5:
                         this._logger.Fatal("Using a URI prefix other than localhost or 127.0.0.1, or a port below 1024 requires administrative privileges");
-                        break;
+                        return;
                     case 32:
                         this._logger.Fatal("A port and/or prefix is already in use by another process");
-                        break;
+                        return;
                     default:
                         throw;
                 }
-
-                this._logger.Debug(e, "Starting HttpListener failed");
-                listener.Close();
-                return;
             }
 
-            this._logger.Information("Listening to {Url}...", string.Join(", ", this._config.ListenerPrefixes));
-
-            handler.Handle(listener);
-
             exitEvent.WaitOne();
-            listener.Close();
             (this._logger as Logger)?.Dispose();
         }
 

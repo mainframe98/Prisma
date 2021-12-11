@@ -69,6 +69,8 @@ Prisma utilizes the [FastCGI for .NET](https://github.com/LukasBoersma/FastCGI) 
 
 FastCGI sockets may be defined as either an ip address (local or external) or as a Unix socket file.
 
+Prisma can launch FastCGI applications at startup, if an application is specified under the "LaunchConfiguration" key. This makes manually starting the application unnecessary. Prisma will attempt to close the application when Prisma is stopped itself. Note that this is sometimes finicky, as programs might not be entirely ready before control is returned to Prisma.
+
 ### Default document handler
 This handler will be used when no CGI/FastCGI handlers are defined for the given request. It will output the document as-is.
 

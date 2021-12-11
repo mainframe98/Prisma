@@ -18,7 +18,7 @@ namespace Prisma.Config
         /// <summary>
         /// Available CGI applications, keyed by name.
         /// </summary>
-        public Dictionary<string, CgiApplicationConfig> CgiApplications { get; set; } = new();
+        public Dictionary<string, ApplicationConfig> CgiApplications { get; set; } = new();
 
         /// <summary>
         /// Available FastCGI applications, keyed by name.
@@ -215,7 +215,7 @@ namespace Prisma.Config
         {
             ServerConfig clone = (ServerConfig)this.MemberwiseClone();
 
-            clone.CgiApplications = this.CgiApplications.ToDictionary(p => p.Key, p => (CgiApplicationConfig)p.Value.Clone());
+            clone.CgiApplications = this.CgiApplications.ToDictionary(p => p.Key, p => (ApplicationConfig)p.Value.Clone());
             clone.FastCgiApplications = this.FastCgiApplications.ToDictionary(p => p.Key, p => (FastCgiApplicationConfig)p.Value.Clone());
             clone.Logging = (LogConfig)this.Logging.Clone();
             clone.InvokeOnPath = new Dictionary<string, string>(this.InvokeOnPath);

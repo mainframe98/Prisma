@@ -332,4 +332,7 @@
 	<data name="DownloadNewVersionManually" xml:space="preserve">
 		<value>You can download the new version manually instead.</value>
 	</data>
+	<data name="Socket" xml:space="preserve">
+		<value>Socket</value>
+	</data>
 </root>

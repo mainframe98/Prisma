@@ -230,7 +230,27 @@
                     <Grid.RowDefinitions>
                         <RowDefinition SharedSizeGroup="Tabs"/>
                     </Grid.RowDefinitions>
-                    <DataGrid ItemsSource="{Binding FastCgiApplications, Mode=TwoWay}" MinColumnWidth="75" CanUserResizeRows="False"/>
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding FastCgiApplications, Mode=TwoWay}" MinColumnWidth="75" CanUserResizeRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{localization:Localize Name}" Binding="{Binding Name, Mode=TwoWay}"/>
+                            <DataGridTextColumn Header="{localization:Localize Socket}" Binding="{Binding Socket, Mode=TwoWay}"/>
+                            <DataGridTextColumn Header="{localization:Localize Path}" Binding="{Binding Path, Mode=TwoWay}"/>
+                            <DataGridTemplateColumn Header="{localization:Localize Arguments}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <DataGrid ItemsSource="{Binding Arguments, Mode=TwoWay}" CanUserResizeRows="False"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{localization:Localize Environment variables}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <DataGrid ItemsSource="{Binding EnvironmentVariables, Mode=TwoWay}" CanUserResizeRows="False"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </TabItem>
             <TabItem Header="{localization:Localize CGI applications}">

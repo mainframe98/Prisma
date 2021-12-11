@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -33,6 +34,11 @@ namespace Prisma.DocumentHandlers
             this.Logger = logger;
             this.LoggableName = this.GetType().Name;
         }
+
+        /// <summary>
+        /// Do initialization work that shouldn't happen inside the constructor.
+        /// </summary>
+        public virtual void Initialize() {}
 
         /// <summary>
         /// Handle the given request.
@@ -173,6 +179,38 @@ namespace Prisma.DocumentHandlers
 
                 line = streamReader.ReadLine();
             }
+        }
+
+        /// <summary>
+        /// Create ProcessStartInfo from an application config.
+        ///
+        /// This creates a ProcessStartInfo that disables UseShellExecute, enables CreateNoWindow and redirects the input, error, and output streams.
+        /// </summary>
+        /// <param name="applicationConfig"></param>
+        /// <returns></returns>
+        protected ProcessStartInfo CreateProcessStartInfo(ApplicationConfig applicationConfig)
+        {
+            ProcessStartInfo startInfo = new()
+            {
+                UseShellExecute = false,
+                FileName = applicationConfig.Path,
+                CreateNoWindow = true,
+                RedirectStandardInput = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+
+            foreach (string arg in applicationConfig.Arguments)
+            {
+                startInfo.ArgumentList.Add(arg);
+            }
+
+            foreach ((string variable, string value) in applicationConfig.EnvironmentVariables)
+            {
+                startInfo.Environment.Add(variable, value);
+            }
+
+            return startInfo;
         }
     }
 }

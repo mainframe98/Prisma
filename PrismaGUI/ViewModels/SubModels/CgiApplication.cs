@@ -60,7 +60,7 @@ namespace PrismaGUI.ViewModels.SubModels
             this._environmentVariables = new();
         }
 
-        public CgiApplication(string name, CgiApplicationConfig applicationConfig)
+        public CgiApplication(string name, ApplicationConfig applicationConfig)
         {
             this._name = name;
             this._path = applicationConfig.Path;
@@ -68,7 +68,7 @@ namespace PrismaGUI.ViewModels.SubModels
             this._environmentVariables = new ObservableCollection<EnvironmentVariable>(applicationConfig.EnvironmentVariables.Select(e => new EnvironmentVariable(e)));
         }
 
-        public static implicit operator CgiApplicationConfig(CgiApplication application) => new()
+        public static implicit operator ApplicationConfig(CgiApplication application) => new()
         {
             Path = application.Path,
             Arguments = application.Arguments.Select(a => a.Value).ToList(),

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Prisma.Config
 {
-    public class CgiApplicationConfig : ICloneable
+    public class ApplicationConfig : ICloneable
     {
          /// <summary>
          /// Arguments to invoke the application with.
@@ -16,13 +16,13 @@ namespace Prisma.Config
          public Dictionary<string, string> EnvironmentVariables { get; set; } = new();
 
          /// <summary>
-         /// Path to the CGI application.
+         /// Path to the application.
          /// </summary>
          public string Path { get; set; } = "";
 
          public object Clone()
          {
-             CgiApplicationConfig clone = (CgiApplicationConfig)this.MemberwiseClone();
+             ApplicationConfig clone = (ApplicationConfig)this.MemberwiseClone();
 
              // This works because the types in the list and dictionary are value types.
              clone.Arguments = new List<string>(this.Arguments);
