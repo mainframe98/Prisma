@@ -15,6 +15,11 @@ namespace Prisma
 
         private delegate bool SetConsoleCtrlEventHandler(CtrlType sig);
 
+        /// <summary>
+        /// Keep a reference to the actively set shutdown handler to prevent it from being garbage collected.
+        /// </summary>
+        private static Action? _activeShutdownHandlerHolder;
+
         private enum CtrlType
         {
             CTRL_C_EVENT = 0,
@@ -26,6 +31,7 @@ namespace Prisma
 
         public static void RegisterShutdownHandler(Action action)
         {
+            _activeShutdownHandlerHolder = action;
             SetConsoleCtrlHandler(signal =>
             {
                 switch (signal)
