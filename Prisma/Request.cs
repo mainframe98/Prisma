@@ -40,7 +40,7 @@ public class Request
     internal Request(HttpListenerRequest originalRequest, ILogger logger)
     {
         this.OriginalRequest = originalRequest;
-        this.RewrittenUrl = originalRequest.Url;
+        this.RewrittenUrl = originalRequest.Url!;
         this.PathInfo = "";
         this.Logger = logger.ForContext("Request", this.ToString());
         this.UniqueId = Guid.NewGuid().ToString();

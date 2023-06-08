@@ -16,10 +16,10 @@ function build() {
 		echo "Building ${t}..."
 
 		if [[ " ${TargetsWithGUI[*]} " =~ " ${t} " ]]; then
-			dotnet publish Prisma/Prisma.csproj -r "$t" $PublishOptions -p:PublishReadyToRun=true
-			dotnet publish PrismaGUI/PrismaGUI.csproj -r "$t" $PublishOptionsGUI -p:PublishReadyToRun=true
+			dotnet publish Prisma/Prisma.csproj -r "$t" --self-contained $PublishOptions -p:PublishReadyToRun=true
+			dotnet publish PrismaGUI/PrismaGUI.csproj -r "$t" --self-contained $PublishOptionsGUI -p:PublishReadyToRun=true
 		else
-			dotnet publish Prisma/Prisma.csproj -r "$t" $PublishOptions
+			dotnet publish Prisma/Prisma.csproj -r "$t" --self-contained $PublishOptions
 		fi
 	done
 
@@ -28,7 +28,7 @@ function build() {
 	for t in "$@"; do
 		if [[ " ${TargetsWithGUI[*]} " =~ " ${t} " ]]; then
 			cp "Prisma/bin/Release/${TargetFramework}/${t}/publish/Prisma.exe" "publish/Prisma-${t}.exe"
-			cp "PrismaGUI/bin/Release/${TargetFramework}/${t}/publish/PrismaGUI.exe" "publish/PrismaGUI-${t}.exe"
+			cp "PrismaGUI/bin/Release/${TargetFramework}-windows/${t}/publish/PrismaGUI.exe" "publish/PrismaGUI-${t}.exe"
 		else
 			cp "Prisma/bin/Release/${TargetFramework}/${t}/publish/Prisma" "publish/prisma-${t}"
 		fi

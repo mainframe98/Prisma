@@ -37,8 +37,8 @@ public class LogConfig : ICloneable
             {
                 Headers = r.Headers
                     .Cast<string?>()
-                    .Where(h => h != null && r.Headers[h] != null)
-                    .ToDictionary(h => h, h => r.Headers[h]),
+                    .Where(h => h != null && r.Headers[h] != null)!
+                    .ToDictionary<string, string, string>(h => h!, h => r.Headers[h]!),
                 Method = r.HttpMethod,
                 ContentLength = r.ContentLength64,
                 HostAddress = r.UserHostAddress,

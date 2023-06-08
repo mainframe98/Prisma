@@ -73,6 +73,14 @@ public sealed class RequestHandler : IDisposable
         // Somewhere this gets set to true.
         context.Response.SendChunked = false;
 
+        if (context.Request.Url == null)
+        {
+            Display500Error(context, new UriFormatException(context.Request.RawUrl));
+            context.Response.Close();
+
+            return;
+        }
+
         Request request = new(context.Request, this._logger)
         {
             RewrittenUrl = this.RewritePath(context.Request.Url)
@@ -93,25 +101,7 @@ public sealed class RequestHandler : IDisposable
         catch (Exception e)
         {
             request.Logger.Error(e, "Request handling failed");
-            context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
-            try
-            {
-                this._standardDocumentHandler.WriteToResponse($@"
-<html>
-    <head>
-        <title>Internal error</title>
-    </head>
-    <body>
-        <h1>Internal error</h1>
-        <p>{e.Message}</p>
-        <pre>{e.StackTrace}</pre>
-    </body>
-</html>", context.Response);
-            }
-            catch (InvalidOperationException ioe)
-            {
-                this._logger.Warning(ioe, "Cannot write 500 error");
-            }
+            Display500Error(context, e);
         }
         finally
         {
@@ -127,6 +117,29 @@ public sealed class RequestHandler : IDisposable
         }
 
         context.Response.Close();
+    }
+
+    private void Display500Error(HttpListenerContext context, Exception e)
+    {
+        context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+        try
+        {
+            this._standardDocumentHandler.WriteToResponse($@"
+<html>
+    <head>
+        <title>Internal error</title>
+    </head>
+    <body>
+        <h1>Internal error</h1>
+        <p>{e.Message}</p>
+        <pre>{e.StackTrace}</pre>
+    </body>
+</html>", context.Response);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            this._logger.Warning(ioe, "Cannot write 500 error");
+        }
     }
 
     /// <summary>

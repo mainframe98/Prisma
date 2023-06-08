@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -49,8 +50,15 @@ internal sealed class JsonRegexKeyConverter : JsonConverterFactory
 
                 try
                 {
+                    string? pattern = reader.GetString();
+
+                    if (pattern == null)
+                    {
+                        throw new JsonException("Key is not a valid regular expression!");
+                    }
+
                     // Give 2.5 seconds as maximum to prevent slow regexes from hanging.
-                    key = new Regex(reader.GetString(), RegexOptions.None, TimeSpan.FromMilliseconds(2500));
+                    key = new Regex(pattern, RegexOptions.None, TimeSpan.FromMilliseconds(2500));
                 }
                 catch (ArgumentException e)
                 {
@@ -58,14 +66,26 @@ internal sealed class JsonRegexKeyConverter : JsonConverterFactory
                 }
 
                 // Advance to the next token.
-                reader.Read();
+                if (!reader.Read())
+                {
+                    throw new JsonException("Value is not a valid string!");
+                }
 
-                dictionary.Add(key, reader.GetString());
+                string? value = reader.GetString();
+
+                if (value == null)
+                {
+                    throw new JsonException("Value is not a valid string!");
+                }
+
+                dictionary.Add(key, value);
             }
 
             throw new JsonException("Unexpected end of JSON!");
         }
 
+
+        [UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2026:RequiresUnreferencedCode", Justification = "Referenced type is an integral part of .NET")]
         public override void Write(Utf8JsonWriter writer, Dictionary<Regex, string> dictionary, JsonSerializerOptions options)
         {
             writer.WriteStartObject();

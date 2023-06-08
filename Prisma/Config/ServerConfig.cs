@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 using Prisma.Exceptions;
 
@@ -162,6 +164,7 @@ public class ServerConfig : ICloneable
     /// <param name="path"></param>
     /// <returns></returns>
     /// <exception cref="FileNotFoundException"></exception>
+    [UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2026:RequiresUnreferencedCode", Justification = "Referenced type is an active part of this assembly")]
     public static ServerConfig LoadFrom(string path)
     {
         if (!File.Exists(path))
@@ -169,7 +172,7 @@ public class ServerConfig : ICloneable
             throw new FileNotFoundException("The config file does not exist", path);
         }
 
-        ServerConfig config = JsonSerializer.Deserialize<ServerConfig>(
+        ServerConfig? config = JsonSerializer.Deserialize<ServerConfig>(
             File.ReadAllText(path),
             new JsonSerializerOptions
             {
@@ -182,6 +185,11 @@ public class ServerConfig : ICloneable
                 }
             }
         );
+
+        if (config == null)
+        {
+            throw new JsonException("The config file is invalid.");
+        }
 
         // If the config file contains relative paths, then that means relative to where the config file is,
         // not the working directory.
@@ -227,6 +235,7 @@ public class ServerConfig : ICloneable
         return clone;
     }
 
+    [UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2026:RequiresUnreferencedCode", Justification = "Referenced type is an active part of this assembly")]
     public override string ToString() => JsonSerializer.Serialize(this, new JsonSerializerOptions
     {
         WriteIndented = true,
