@@ -22,7 +22,7 @@ using Serilog.Events;
 
 namespace PrismaGUI.ViewModels;
 
-public class MainWindowViewModel : ClassWithPropertiesThatNotify, IDisposable
+public sealed class MainWindowViewModel : ClassWithPropertiesThatNotify, IDisposable
 {
     #region Command handlers
 

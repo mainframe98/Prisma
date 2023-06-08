@@ -11,7 +11,7 @@ using Serilog;
 
 namespace Prisma;
 
-public class RequestHandler : IDisposable
+public sealed class RequestHandler : IDisposable
 {
     private readonly ILogger _logger;
     private readonly ServerConfig _config;

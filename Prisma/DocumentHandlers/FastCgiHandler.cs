@@ -15,7 +15,7 @@ using Serilog;
 
 namespace Prisma.DocumentHandlers;
 
-public class FastCgiHandler : DocumentHandler, IDisposable
+public sealed class FastCgiHandler : DocumentHandler, IDisposable
 {
     private const byte ZeroByte = 0x00;
     private readonly EndPoint _endPoint;

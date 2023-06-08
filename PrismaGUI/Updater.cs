@@ -10,7 +10,7 @@ using Prisma;
 
 namespace PrismaGUI;
 
-public class Updater : IDisposable
+public sealed class Updater : IDisposable
 {
     private readonly HttpClient _httpClient;
 

@@ -12,7 +12,7 @@ namespace PrismaGUI.Views;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : IDisposable
+public sealed partial class MainWindow : IDisposable
 {
     // This is an inverted version of the default Literate theme used by Serilog.Sinks.RichTextBox.Wpf.
     private readonly RichTextBoxTheme _theme = new RichTextBoxConsoleTheme(new Dictionary<RichTextBoxThemeStyle, RichTextBoxConsoleThemeStyle>

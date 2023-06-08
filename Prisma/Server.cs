@@ -6,7 +6,7 @@ using Serilog;
 
 namespace Prisma;
 
-public class Server : IDisposable
+public sealed class Server : IDisposable
 {
     private readonly ServerConfig _config;
     private readonly ILogger _logger;
