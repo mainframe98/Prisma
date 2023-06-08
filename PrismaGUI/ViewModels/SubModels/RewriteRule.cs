@@ -2,41 +2,40 @@
 using System.Windows.Markup;
 using PrismaGUI.ViewModelHelpingClasses;
 
-namespace PrismaGUI.ViewModels.SubModels
+namespace PrismaGUI.ViewModels.SubModels;
+
+public class RewriteRule : ClassWithPropertiesThatNotify
 {
-    public class RewriteRule : ClassWithPropertiesThatNotify
+    private Regex _rule;
+    private string _rewriteTo;
+
+    [ConstructorArgument("rule")]
+    public Regex Rule
     {
-        private Regex _rule;
-        private string _rewriteTo;
-
-        [ConstructorArgument("rule")]
-        public Regex Rule
+        get => this._rule;
+        set
         {
-            get => this._rule;
-            set
-            {
-                this._rule = value;
-                this.NotifyPropertyChanged();
-            }
+            this._rule = value;
+            this.NotifyPropertyChanged();
         }
+    }
 
-        [ConstructorArgument("rewriteTo")]
-        public string RewriteTo
+    [ConstructorArgument("rewriteTo")]
+    public string RewriteTo
+    {
+        get => this._rewriteTo;
+        set
         {
-            get => this._rewriteTo;
-            set
-            {
-                this._rewriteTo = value;
-                this.NotifyPropertyChanged();
-            }
+            this._rewriteTo = value;
+            this.NotifyPropertyChanged();
         }
+    }
 
-        public RewriteRule() : this(new(""), "") {}
+    public RewriteRule() : this(new(""), "") {}
 
-        public RewriteRule(Regex rule, string rewriteTo)
-        {
-            this._rule = rule;
-            this._rewriteTo = rewriteTo;
-        }
+    public RewriteRule(Regex rule, string rewriteTo)
+    {
+        this._rule = rule;
+        this._rewriteTo = rewriteTo;
     }
 }

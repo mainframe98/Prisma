@@ -1,15 +1,14 @@
 using System;
 using Serilog;
 
-namespace PrismaGUI
-{
-    internal class NewLoggerEventArgs : EventArgs
-    {
-        public LoggerConfiguration LoggerConfiguration { get; }
+namespace PrismaGUI;
 
-        public NewLoggerEventArgs(LoggerConfiguration logConfig)
-        {
-            this.LoggerConfiguration = logConfig;
-        }
+internal class NewLoggerEventArgs : EventArgs
+{
+    public LoggerConfiguration LoggerConfiguration { get; }
+
+    public NewLoggerEventArgs(LoggerConfiguration logConfig)
+    {
+        this.LoggerConfiguration = logConfig;
     }
 }

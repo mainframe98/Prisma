@@ -5,39 +5,38 @@ using System.Text;
 using System.Text.Json;
 using Serilog;
 
-namespace PrismaGUI
+namespace PrismaGUI;
+
+public static class Utilities
 {
-    public static class Utilities
+    public static void LaunchBrowserForUri(Uri uri) => LaunchBrowserForUri(uri.ToString());
+    public static void LaunchBrowserForUri(string url) => Process.Start(new ProcessStartInfo(url)
     {
-        public static void LaunchBrowserForUri(Uri uri) => LaunchBrowserForUri(uri.ToString());
-        public static void LaunchBrowserForUri(string url) => Process.Start(new ProcessStartInfo(url)
-        {
-            UseShellExecute = true
-        });
+        UseShellExecute = true
+    });
 
-        public static string ToJsonString(this JsonDocument json)
-        {
-            using MemoryStream stream = new();
-            Utf8JsonWriter writer = new(stream, new JsonWriterOptions { Indented = true });
-            json.WriteTo(writer);
-            writer.Flush();
-            return Encoding.UTF8.GetString(stream.ToArray());
-        }
+    public static string ToJsonString(this JsonDocument json)
+    {
+        using MemoryStream stream = new();
+        Utf8JsonWriter writer = new(stream, new JsonWriterOptions { Indented = true });
+        json.WriteTo(writer);
+        writer.Flush();
+        return Encoding.UTF8.GetString(stream.ToArray());
+    }
 
-        /// <summary>
-        /// Logger for application level events.
-        /// </summary>
-        public static ILogger ApplicationLogger { get; }
+    /// <summary>
+    /// Logger for application level events.
+    /// </summary>
+    public static ILogger ApplicationLogger { get; }
 
-        static Utilities()
-        {
-            LoggerConfiguration loggerConfiguration = new();
-            loggerConfiguration
-                .MinimumLevel.Verbose()
-                .WriteTo.Debug()
-                .WriteTo.File(Path.Combine(Path.GetDirectoryName(System.AppContext.BaseDirectory)!, "app.log"));
+    static Utilities()
+    {
+        LoggerConfiguration loggerConfiguration = new();
+        loggerConfiguration
+            .MinimumLevel.Verbose()
+            .WriteTo.Debug()
+            .WriteTo.File(Path.Combine(Path.GetDirectoryName(System.AppContext.BaseDirectory)!, "app.log"));
 
-            ApplicationLogger = loggerConfiguration.CreateLogger();
-        }
+        ApplicationLogger = loggerConfiguration.CreateLogger();
     }
 }

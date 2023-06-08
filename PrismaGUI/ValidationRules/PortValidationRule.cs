@@ -2,13 +2,12 @@ using System.Globalization;
 using System.Windows.Controls;
 using PrismaGUI.Properties;
 
-namespace PrismaGUI.ValidationRules
+namespace PrismaGUI.ValidationRules;
+
+public class PortValidationRule : ValidationRule
 {
-    public class PortValidationRule : ValidationRule
+    public override ValidationResult Validate(object value, CultureInfo cultureInfo)
     {
-        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
-        {
-            return new ValidationResult(ushort.TryParse(value.ToString(), out _), Resources.InvalidPortNumber);
-        }
+        return new ValidationResult(ushort.TryParse(value.ToString(), out _), Resources.InvalidPortNumber);
     }
 }

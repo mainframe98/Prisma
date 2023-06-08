@@ -8,209 +8,208 @@ using System.Text;
 using Prisma.Config;
 using Serilog;
 
-namespace Prisma.DocumentHandlers
+namespace Prisma.DocumentHandlers;
+
+public abstract class DocumentHandler
 {
-    public abstract class DocumentHandler
+    /// <summary>
+    /// Server configuration.
+    /// </summary>
+    protected readonly ServerConfig Config;
+
+    /// <summary>
+    /// Logger for this specific handler.
+    /// For request specific logging, use <see cref="Request.Logger"/>
+    /// </summary>
+    protected readonly ILogger Logger;
+
+    /// <summary>
+    /// Human readable interpretation of the invocation.
+    /// </summary>
+    public string LoggableName { get; set; }
+
+    protected DocumentHandler(ServerConfig config, ILogger logger)
     {
-        /// <summary>
-        /// Server configuration.
-        /// </summary>
-        protected readonly ServerConfig Config;
+        this.Config = config;
+        this.Logger = logger;
+        this.LoggableName = this.GetType().Name;
+    }
 
-        /// <summary>
-        /// Logger for this specific handler.
-        /// For request specific logging, use <see cref="Request.Logger"/>
-        /// </summary>
-        protected readonly ILogger Logger;
+    /// <summary>
+    /// Do initialization work that shouldn't happen inside the constructor.
+    /// </summary>
+    public virtual void Initialize() {}
 
-        /// <summary>
-        /// Human readable interpretation of the invocation.
-        /// </summary>
-        public string LoggableName { get; set; }
+    /// <summary>
+    /// Handle the given request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="response"></param>
+    public abstract void HandleRequest(Request request, HttpListenerResponse response);
 
-        protected DocumentHandler(ServerConfig config, ILogger logger)
+    /// <summary>
+    /// Write the provided text to the response.
+    /// </summary>
+    /// <param name="content">Content encoded in UTF-8</param>
+    /// <param name="response"></param>
+    protected internal void WriteToResponse(string content, HttpListenerResponse response)
+    {
+        response.ContentType = "text/html; charset=UTF-8";
+        byte[] buffer = Encoding.UTF8.GetBytes(content);
+        response.ContentLength64 = buffer.Length;
+        response.OutputStream.Write(buffer,0,buffer.Length);
+        response.OutputStream.Close();
+    }
+
+    /// <summary>
+    /// Build CGI required environment variables, per https://datatracker.ietf.org/doc/html/rfc3875.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="gatewayInterface">Value of the GATEWAY_INTERFACE variable</param>
+    /// <returns></returns>
+    protected Dictionary<string, string> BuildRequestVariables(Request request, string gatewayInterface)
+    {
+        HttpListenerRequest originalRequest = request.OriginalRequest;
+        string? host;
+        if (string.IsNullOrEmpty(originalRequest.UserHostName))
         {
-            this.Config = config;
-            this.Logger = logger;
-            this.LoggableName = this.GetType().Name;
+            host = originalRequest.LocalEndPoint?.Address.ToString();
+        }
+        else
+        {
+            host = originalRequest.UserHostName;
+            string port = ":" + this.Config.Port;
+            if (originalRequest.UserHostName.EndsWith(port))
+            {
+                host = host.Substring(0,host.Length - port.Length);
+            }
         }
 
-        /// <summary>
-        /// Do initialization work that shouldn't happen inside the constructor.
-        /// </summary>
-        public virtual void Initialize() {}
-
-        /// <summary>
-        /// Handle the given request.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="response"></param>
-        public abstract void HandleRequest(Request request, HttpListenerResponse response);
-
-        /// <summary>
-        /// Write the provided text to the response.
-        /// </summary>
-        /// <param name="content">Content encoded in UTF-8</param>
-        /// <param name="response"></param>
-        protected internal void WriteToResponse(string content, HttpListenerResponse response)
+        Dictionary<string, string?> variables = new()
         {
-            response.ContentType = "text/html; charset=UTF-8";
-            byte[] buffer = Encoding.UTF8.GetBytes(content);
-            response.ContentLength64 = buffer.Length;
-            response.OutputStream.Write(buffer,0,buffer.Length);
-            response.OutputStream.Close();
+            {"CONTENT_LENGTH", originalRequest.ContentLength64 <= 0 ? null : originalRequest.ContentLength64.ToString() },
+            {"CONTENT_TYPE", originalRequest.ContentType},
+            {"GATEWAY_INTERFACE", gatewayInterface},
+            {"PATH_INFO", request.PathInfo},
+            {"PATH_TRANSLATED", Path.Combine(this.Config.DocumentRoot, request.RewrittenUrl.LocalPath[1..])},
+            // RFC 3875 specifies the query string as being without the leading ?.
+            {"QUERY_STRING", request.RewrittenUrl.Query.TrimStart('?')},
+            {"REMOTE_ADDR", originalRequest.RemoteEndPoint?.Address.ToString()},
+            {"REMOTE_HOST", originalRequest.RemoteEndPoint?.Address.ToString()},
+            {"REQUEST_METHOD", originalRequest.HttpMethod},
+            {"SCRIPT_NAME", request.RewrittenUrl.LocalPath},
+            {"SERVER_NAME", host},
+            {"SERVER_PORT", this.Config.Port.ToString()},
+            {"SERVER_PROTOCOL", "HTTP/" + originalRequest.ProtocolVersion},
+            {"SERVER_SOFTWARE", PrismaInfo.SoftwareName},
+            // Non-spec variables, but either commonly used, or available and useful.
+            {"DOCUMENT_ROOT", this.Config.DocumentRoot},
+            {"REMOTE_PORT", originalRequest.RemoteEndPoint?.Port.ToString()},
+            {"REQUEST_URI", request.RewrittenUrl.LocalPath + request.PathInfo + request.RewrittenUrl.Query},
+            // This id is set in the request. Providing this to applications make the log files more usable.
+            {"UNIQUE_ID", request.UniqueId}
+        };
+
+        foreach (string? header in originalRequest.Headers)
+        {
+            string cgiHeader = (header ?? "").ToUpper().Replace('-', '_');
+            if (cgiHeader == "" || variables.ContainsKey(cgiHeader))
+            {
+                continue;
+            }
+
+            variables.Add("HTTP_" + cgiHeader, originalRequest.Headers[header]);
         }
 
-        /// <summary>
-        /// Build CGI required environment variables, per https://datatracker.ietf.org/doc/html/rfc3875.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="gatewayInterface">Value of the GATEWAY_INTERFACE variable</param>
-        /// <returns></returns>
-        protected Dictionary<string, string> BuildRequestVariables(Request request, string gatewayInterface)
+        Dictionary<string, string> filteredVariables =  variables
+            .Where(p => p.Value != null)
+            .ToDictionary(p => p.Key, p => p.Value ?? throw new NullReferenceException($"{p.Key} has a null value!"));
+
+        request.Logger.Debug("Request generated environment variables: {EnvironmentVariables}", filteredVariables);
+
+        return filteredVariables;
+    }
+
+    /// <summary>
+    /// Read the response from the CGI application and write it to the response object.
+    /// </summary>
+    /// <param name="streamReader">Stream reader to read the response from. This MUST be backed by a stream that is seekable</param>
+    /// <param name="response"></param>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="streamReader"/> isn't backed by a stream that is seekable</exception>
+    protected void ReadCgiResponse(StreamReader streamReader, HttpListenerResponse response)
+    {
+        if (!streamReader.BaseStream.CanSeek)
         {
-            HttpListenerRequest originalRequest = request.OriginalRequest;
-            string? host;
-            if (string.IsNullOrEmpty(originalRequest.UserHostName))
-            {
-                host = originalRequest.LocalEndPoint?.Address.ToString();
-            }
-            else
-            {
-                host = originalRequest.UserHostName;
-                string port = ":" + this.Config.Port;
-                if (originalRequest.UserHostName.EndsWith(port))
-                {
-                    host = host.Substring(0,host.Length - port.Length);
-                }
-            }
-
-            Dictionary<string, string?> variables = new()
-            {
-                {"CONTENT_LENGTH", originalRequest.ContentLength64 <= 0 ? null : originalRequest.ContentLength64.ToString() },
-                {"CONTENT_TYPE", originalRequest.ContentType},
-                {"GATEWAY_INTERFACE", gatewayInterface},
-                {"PATH_INFO", request.PathInfo},
-                {"PATH_TRANSLATED", Path.Combine(this.Config.DocumentRoot, request.RewrittenUrl.LocalPath[1..])},
-                // RFC 3875 specifies the query string as being without the leading ?.
-                {"QUERY_STRING", request.RewrittenUrl.Query.TrimStart('?')},
-                {"REMOTE_ADDR", originalRequest.RemoteEndPoint?.Address.ToString()},
-                {"REMOTE_HOST", originalRequest.RemoteEndPoint?.Address.ToString()},
-                {"REQUEST_METHOD", originalRequest.HttpMethod},
-                {"SCRIPT_NAME", request.RewrittenUrl.LocalPath},
-                {"SERVER_NAME", host},
-                {"SERVER_PORT", this.Config.Port.ToString()},
-                {"SERVER_PROTOCOL", "HTTP/" + originalRequest.ProtocolVersion},
-                {"SERVER_SOFTWARE", PrismaInfo.SoftwareName},
-                // Non-spec variables, but either commonly used, or available and useful.
-                {"DOCUMENT_ROOT", this.Config.DocumentRoot},
-                {"REMOTE_PORT", originalRequest.RemoteEndPoint?.Port.ToString()},
-                {"REQUEST_URI", request.RewrittenUrl.LocalPath + request.PathInfo + request.RewrittenUrl.Query},
-                // This id is set in the request. Providing this to applications make the log files more usable.
-                {"UNIQUE_ID", request.UniqueId}
-            };
-
-            foreach (string? header in originalRequest.Headers)
-            {
-                string cgiHeader = (header ?? "").ToUpper().Replace('-', '_');
-                if (cgiHeader == "" || variables.ContainsKey(cgiHeader))
-                {
-                    continue;
-                }
-
-                variables.Add("HTTP_" + cgiHeader, originalRequest.Headers[header]);
-            }
-
-            Dictionary<string, string> filteredVariables =  variables
-                .Where(p => p.Value != null)
-                .ToDictionary(p => p.Key, p => p.Value ?? throw new NullReferenceException($"{p.Key} has a null value!"));
-
-            request.Logger.Debug("Request generated environment variables: {EnvironmentVariables}", filteredVariables);
-
-            return filteredVariables;
+            throw new ArgumentException("The provided stream reader must be backed by a stream that is seekable.", nameof(streamReader));
         }
 
-        /// <summary>
-        /// Read the response from the CGI application and write it to the response object.
-        /// </summary>
-        /// <param name="streamReader">Stream reader to read the response from. This MUST be backed by a stream that is seekable</param>
-        /// <param name="response"></param>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="streamReader"/> isn't backed by a stream that is seekable</exception>
-        protected void ReadCgiResponse(StreamReader streamReader, HttpListenerResponse response)
+        string? line = streamReader.ReadLine();
+        int streamCounter = 0;
+        // This assumes that nothing will ever violate the specification and terminate with non CRLF line-endings...
+        const int lineEndingByteCount = 2;
+        while (line != null)
         {
-            if (!streamReader.BaseStream.CanSeek)
+            streamCounter += streamReader.CurrentEncoding.GetByteCount(line) + lineEndingByteCount;
+            if (line == "")
             {
-                throw new ArgumentException("The provided stream reader must be backed by a stream that is seekable.", nameof(streamReader));
+                streamReader.BaseStream.Position = streamCounter;
+                response.ContentLength64 = streamReader.BaseStream.Length - streamReader.BaseStream.Position;
+                streamReader.BaseStream.CopyTo(response.OutputStream);
+                return;
             }
 
-            string? line = streamReader.ReadLine();
-            int streamCounter = 0;
-            // This assumes that nothing will ever violate the specification and terminate with non CRLF line-endings...
-            const int lineEndingByteCount = 2;
-            while (line != null)
+            string[] header = line.Split(':', 2);
+
+            if (header.Length == 2)
             {
-                streamCounter += streamReader.CurrentEncoding.GetByteCount(line) + lineEndingByteCount;
-                if (line == "")
+                if (header[0].ToLower() == "status")
                 {
-                    streamReader.BaseStream.Position = streamCounter;
-                    response.ContentLength64 = streamReader.BaseStream.Length - streamReader.BaseStream.Position;
-                    streamReader.BaseStream.CopyTo(response.OutputStream);
-                    return;
-                }
-
-                string[] header = line.Split(':', 2);
-
-                if (header.Length == 2)
-                {
-                    if (header[0].ToLower() == "status")
+                    string[] status = header[1].TrimStart(' ').Split(' ', 2);
+                    response.StatusCode = int.Parse(status[0]);
+                    if (status.Length > 1)
                     {
-                        string[] status = header[1].TrimStart(' ').Split(' ', 2);
-                        response.StatusCode = int.Parse(status[0]);
-                        if (status.Length > 1)
-                        {
-                            response.StatusDescription = status[1];
-                        }
-                    }
-                    else
-                    {
-                        response.AppendHeader(header[0], header[1].TrimStart(' '));
+                        response.StatusDescription = status[1];
                     }
                 }
-
-                line = streamReader.ReadLine();
+                else
+                {
+                    response.AppendHeader(header[0], header[1].TrimStart(' '));
+                }
             }
-        }
 
-        /// <summary>
-        /// Create ProcessStartInfo from an application config.
-        ///
-        /// This creates a ProcessStartInfo that disables UseShellExecute, enables CreateNoWindow and redirects the input, error, and output streams.
-        /// </summary>
-        /// <param name="applicationConfig"></param>
-        /// <returns></returns>
-        protected ProcessStartInfo CreateProcessStartInfo(ApplicationConfig applicationConfig)
+            line = streamReader.ReadLine();
+        }
+    }
+
+    /// <summary>
+    /// Create ProcessStartInfo from an application config.
+    ///
+    /// This creates a ProcessStartInfo that disables UseShellExecute, enables CreateNoWindow and redirects the input, error, and output streams.
+    /// </summary>
+    /// <param name="applicationConfig"></param>
+    /// <returns></returns>
+    protected ProcessStartInfo CreateProcessStartInfo(ApplicationConfig applicationConfig)
+    {
+        ProcessStartInfo startInfo = new()
         {
-            ProcessStartInfo startInfo = new()
-            {
-                UseShellExecute = false,
-                FileName = applicationConfig.Path,
-                CreateNoWindow = true,
-                RedirectStandardInput = true,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true
-            };
+            UseShellExecute = false,
+            FileName = applicationConfig.Path,
+            CreateNoWindow = true,
+            RedirectStandardInput = true,
+            RedirectStandardError = true,
+            RedirectStandardOutput = true
+        };
 
-            foreach (string arg in applicationConfig.Arguments)
-            {
-                startInfo.ArgumentList.Add(arg);
-            }
-
-            foreach ((string variable, string value) in applicationConfig.EnvironmentVariables)
-            {
-                startInfo.Environment.Add(variable, value);
-            }
-
-            return startInfo;
+        foreach (string arg in applicationConfig.Arguments)
+        {
+            startInfo.ArgumentList.Add(arg);
         }
+
+        foreach ((string variable, string value) in applicationConfig.EnvironmentVariables)
+        {
+            startInfo.Environment.Add(variable, value);
+        }
+
+        return startInfo;
     }
 }

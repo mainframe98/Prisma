@@ -1,29 +1,28 @@
 using System.Windows.Markup;
 
-namespace PrismaGUI.ViewModelHelpingClasses
+namespace PrismaGUI.ViewModelHelpingClasses;
+
+public class ClassWithStringField : ClassWithPropertiesThatNotify
 {
-    public class ClassWithStringField : ClassWithPropertiesThatNotify
+    private string _value;
+
+    [ConstructorArgument("value")]
+    public string Value
     {
-        private string _value;
-
-        [ConstructorArgument("value")]
-        public string Value
-        {
-            get => this._value;
-            set
-            {
-                this._value = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        public ClassWithStringField() : this("") {}
-
-        public ClassWithStringField(string value)
+        get => this._value;
+        set
         {
             this._value = value;
+            this.NotifyPropertyChanged();
         }
-
-        public override string ToString() => this._value;
     }
+
+    public ClassWithStringField() : this("") {}
+
+    public ClassWithStringField(string value)
+    {
+        this._value = value;
+    }
+
+    public override string ToString() => this._value;
 }

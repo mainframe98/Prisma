@@ -1,12 +1,11 @@
-namespace Prisma
+namespace Prisma;
+
+internal static class Program
 {
-    internal static class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            new Cli()
-                .ProcessInput(args)
-                .Run();
-        }
+        new Cli()
+            .ProcessInput(args)
+            .Run();
     }
 }
