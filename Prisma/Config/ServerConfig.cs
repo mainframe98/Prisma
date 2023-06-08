@@ -207,7 +207,7 @@ namespace Prisma.Config
 
             if (this.Logging.Path != "" && !Path.IsPathRooted(this.Logging.Path))
             {
-                this.Logging.Path = Path.Combine(Directory.GetCurrentDirectory(), this.Logging.Path);
+                this.Logging.Path = Path.Combine(rootDirectory, this.Logging.Path);
             }
         }
 
