@@ -2,13 +2,13 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net6.0-windows</TargetFramework>
         <PublishSingleFile>true</PublishSingleFile>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <UseWPF>true</UseWPF>
         <Nullable>enable</Nullable>
 		<Authors>Mainframe98</Authors>
-		<LangVersion>9</LangVersion>
+		<LangVersion>10</LangVersion>
         <ApplicationIcon>Resources\icons\icon.ico</ApplicationIcon>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     </PropertyGroup>

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <PublishSingleFile>true</PublishSingleFile>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <Nullable>enable</Nullable>
@@ -10,7 +10,7 @@
 		<RootNamespace>Prisma</RootNamespace>
 		<Title>Prisma</Title>
 		<Authors>Mainframe98</Authors>
-		<LangVersion>9</LangVersion>
+		<LangVersion>10</LangVersion>
         <ApplicationIcon>..\PrismaGUI\Resources\icons\icon.ico</ApplicationIcon>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
         <AssemblyVersion>1.1.0.0</AssemblyVersion>

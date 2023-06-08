@@ -6,11 +6,10 @@ set -o nounset
 cd "$(dirname "$0")"
 
 declare -a TargetsWithGUI=("win-x64" "win-x86")
-# TODO: Once .NET 6.0 is available, add "osx-arm64"
-declare -a TargetsWithoutGUI=("linux-x64" "linux-arm" "linux-arm64" "osx-x64")
+declare -a TargetsWithoutGUI=("linux-x64" "linux-arm" "linux-arm64" "osx-x64" "osx-arm64")
 declare -a PublishOptionsGUI="-c Release -p:PublishSingleFile=true --nologo"
 declare -a PublishOptions="${PublishOptionsGUI} -p:PublishTrimmed=true"
-declare -a TargetFramework="netcoreapp3.1"
+declare -a TargetFramework="net6.0"
 
 function build() {
 	for t in "$@"; do

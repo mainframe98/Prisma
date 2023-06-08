@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using Serilog;
@@ -36,7 +35,7 @@ namespace PrismaGUI
             loggerConfiguration
                 .MinimumLevel.Verbose()
                 .WriteTo.Debug()
-                .WriteTo.File(Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location)!, "app.log"));
+                .WriteTo.File(Path.Combine(Path.GetDirectoryName(System.AppContext.BaseDirectory)!, "app.log"));
 
             ApplicationLogger = loggerConfiguration.CreateLogger();
         }
