@@ -22,7 +22,7 @@ public class LogFileValidationRule : ValidationRule
     {
         try
         {
-            new FileInfo(path);
+            _ = new FileInfo(path);
         }
         catch (Exception)
         {
