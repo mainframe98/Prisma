@@ -24,10 +24,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\LICENSE.md">
-          <Pack>True</Pack>
-          <PackagePath></PackagePath>
-        </None>
         <Resource Include="Resources\icons\folder.svg">
             <Localizable>False</Localizable>
         </Resource>
